@@ -26,56 +26,30 @@ export default function MemeTemplateSelector({
     setErrorStates(prev => ({ ...prev, [templateId]: true }));
   };
 
-  const handleTemplateClick = (template: MemeTemplate) => {
-    if (!errorStates[template.id]) {
-      onTemplateSelect(template);
-    }
-  };
-
-  const handleKeyDown = (event: React.KeyboardEvent, template: MemeTemplate) => {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      handleTemplateClick(template);
-    }
-  };
-
   return (
-    <div className="w-full" role="region" aria-labelledby="template-selector-heading">
-      <h2 
-        id="template-selector-heading" 
-        className="text-2xl sm:text-3xl font-bold mb-6 text-center text-gray-900"
-      >
+    <div>
+      <h2 className="text-2xl font-bold mb-6 text-center text-gray-900">
         Choose a Meme Template
       </h2>
-      <div 
-        className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4"
-        role="grid"
-        aria-label="Meme template selection"
-      >
+      
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {POPULAR_MEME_TEMPLATES.map((template, index) => (
           <div
             key={template.id}
-            role="gridcell"
-            tabIndex={0}
             className={`
-              relative cursor-pointer border-2 rounded-xl overflow-hidden transition-all duration-300 
-              transform hover:scale-[1.02] focus:scale-[1.02] focus:outline-none
+              cursor-pointer border-2 rounded-lg overflow-hidden transition-all
               ${selectedTemplate?.id === template.id
-                ? 'border-blue-500 shadow-xl ring-2 ring-blue-200 animate-pulse-glow'
+                ? 'border-blue-500 shadow-lg'
                 : errorStates[template.id]
-                ? 'border-red-300 opacity-50 cursor-not-allowed'
-                : 'border-gray-200 hover:border-blue-300 hover:shadow-lg'
+                ? 'border-red-300 opacity-50'
+                : 'border-gray-200 hover:border-blue-300 hover:shadow-md'
               }
             `}
-            onClick={() => handleTemplateClick(template)}
-            onKeyDown={(e) => handleKeyDown(e, template)}
-            aria-label={`Select ${template.name} template`}
-            aria-selected={selectedTemplate?.id === template.id}
-            aria-disabled={errorStates[template.id]}
+            onClick={() => !errorStates[template.id] && onTemplateSelect(template)}
           >
             <div className="relative aspect-square bg-gray-100">
               {loadingStates[template.id] !== false && (
-                <div className="absolute inset-0 loading-skeleton rounded-t-xl" />
+                <div className="absolute inset-0 bg-gray-200 animate-pulse" />
               )}
               
               {errorStates[template.id] ? (
@@ -92,10 +66,10 @@ export default function MemeTemplateSelector({
                   src={template.url}
                   alt={`${template.name} meme template`}
                   fill
-                  className={`object-cover transition-opacity duration-300 ${
+                  className={`object-cover transition-opacity ${
                     loadingStates[template.id] === false ? 'opacity-100' : 'opacity-0'
                   }`}
-                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                   onLoad={() => handleImageLoad(template.id)}
                   onError={() => handleImageError(template.id)}
                   priority={index < 4}
@@ -112,7 +86,7 @@ export default function MemeTemplateSelector({
             </div>
             
             <div className="p-3 bg-white">
-              <h3 className="text-sm font-semibold text-center text-gray-900 truncate">
+              <h3 className="text-sm font-semibold text-center text-gray-900">
                 {template.name}
               </h3>
               <p className="text-xs text-gray-500 text-center mt-1">
@@ -121,10 +95,6 @@ export default function MemeTemplateSelector({
             </div>
           </div>
         ))}
-      </div>
-      
-      <div className="mt-8 text-center text-sm text-gray-500">
-        <p>Can&apos;t find what you&apos;re looking for? More templates coming soon! 🎉</p>
       </div>
     </div>
   );

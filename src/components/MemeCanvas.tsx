@@ -20,10 +20,9 @@ export default function MemeCanvas({ template, textBoxes, onCanvasReady }: MemeC
     ctx.textAlign = textAlign;
     ctx.textBaseline = 'middle';
     
-    // Enhanced stroke for better visibility
     const strokeColor = color === '#FFFFFF' || color.toLowerCase() === '#ffffff' ? '#000000' : '#FFFFFF';
     ctx.strokeStyle = strokeColor;
-    ctx.lineWidth = Math.max(3, fontSize / 8); // Thicker stroke
+    ctx.lineWidth = Math.max(3, fontSize / 8);
     ctx.lineJoin = 'round';
     ctx.miterLimit = 2;
     
@@ -42,120 +41,10 @@ export default function MemeCanvas({ template, textBoxes, onCanvasReady }: MemeC
         textX = x + textBox.width / 2;
       }
       
-      // Always draw stroke first for visibility
       ctx.strokeText(line, textX, lineY);
-      
-      // Then draw the filled text
       ctx.fillStyle = color;
       ctx.fillText(line, textX, lineY);
     });
-  };
-
-  useEffect(() => {
-    if (!template || !canvasRef.current) return;
-
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    setImageLoaded(false);
-    
-    const img = new Image();
-    
-    // Try different approaches for CORS
-    img.crossOrigin = 'anonymous';
-    
-    img.onload = () => {
-      try {
-        // Set canvas dimensions
-        canvas.width = template.width;
-        canvas.height = template.height;
-        
-        // Clear canvas first
-        ctx.clearRect(0, 0, template.width, template.height);
-        
-        // Draw the background image
-        ctx.drawImage(img, 0, 0, template.width, template.height);
-        
-        // Draw all text boxes
-        textBoxes.forEach((textBox) => {
-          drawText(ctx, textBox);
-        });
-
-        setImageLoaded(true);
-        onCanvasReady(canvas);
-      } catch (error) {
-        console.error('Error drawing to canvas:', error);
-        setImageLoaded(false);
-      }
-    };
-
-    img.onerror = (error) => {
-      console.error('Failed to load image:', template.url, error);
-      
-      // Fallback: try without crossOrigin
-      const fallbackImg = new Image();
-      fallbackImg.onload = () => {
-        try {
-          canvas.width = template.width;
-          canvas.height = template.height;
-          ctx.clearRect(0, 0, template.width, template.height);
-          ctx.drawImage(fallbackImg, 0, 0, template.width, template.height);
-          
-          textBoxes.forEach((textBox) => {
-            drawText(ctx, textBox);
-          });
-
-          setImageLoaded(true);
-          onCanvasReady(canvas);
-        } catch (fallbackError) {
-          console.error('Fallback image loading also failed:', fallbackError);
-          // Create a placeholder canvas
-          createPlaceholderCanvas(ctx, template);
-        }
-      };
-      
-      fallbackImg.onerror = () => {
-        console.error('Fallback image also failed');
-        createPlaceholderCanvas(ctx, template);
-      };
-      
-      fallbackImg.src = template.url;
-    };
-
-    // Load the main image
-    img.src = template.url;
-  }, [template, textBoxes, onCanvasReady, drawText]);
-
-  const createPlaceholderCanvas = (ctx: CanvasRenderingContext2D, template: MemeTemplate) => {
-    const canvas = ctx.canvas;
-    canvas.width = template.width;
-    canvas.height = template.height;
-    
-    // Create a placeholder background
-    ctx.fillStyle = '#f0f0f0';
-    ctx.fillRect(0, 0, template.width, template.height);
-    
-    // Add border
-    ctx.strokeStyle = '#ccc';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(0, 0, template.width, template.height);
-    
-    // Add placeholder text
-    ctx.fillStyle = '#666';
-    ctx.font = '20px Arial';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(template.name, template.width / 2, template.height / 2 - 20);
-    ctx.fillText('(Template Preview)', template.width / 2, template.height / 2 + 20);
-    
-    // Draw user text boxes
-    textBoxes.forEach((textBox) => {
-      drawText(ctx, textBox);
-    });
-    
-    setImageLoaded(true);
-    onCanvasReady(canvas);
   };
 
   const wrapText = (ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] => {
@@ -177,64 +66,117 @@ export default function MemeCanvas({ template, textBoxes, onCanvasReady }: MemeC
     return lines;
   };
 
+  useEffect(() => {
+    if (!template || !canvasRef.current) return;
+
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    setImageLoaded(false);
+    
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    
+    img.onload = () => {
+      try {
+        canvas.width = template.width;
+        canvas.height = template.height;
+        ctx.clearRect(0, 0, template.width, template.height);
+        ctx.drawImage(img, 0, 0, template.width, template.height);
+        
+        textBoxes.forEach((textBox) => {
+          drawText(ctx, textBox);
+        });
+
+        setImageLoaded(true);
+        onCanvasReady(canvas);
+      } catch (error) {
+        console.error('Error drawing to canvas:', error);
+        setImageLoaded(false);
+      }
+    };
+
+    img.onerror = () => {
+      console.error('Failed to load image:', template.url);
+      createPlaceholderCanvas(ctx, template);
+    };
+
+    img.src = template.url;
+  }, [template, textBoxes, onCanvasReady]);
+
+  const createPlaceholderCanvas = (ctx: CanvasRenderingContext2D, template: MemeTemplate) => {
+    const canvas = ctx.canvas;
+    canvas.width = template.width;
+    canvas.height = template.height;
+    
+    ctx.fillStyle = '#f0f0f0';
+    ctx.fillRect(0, 0, template.width, template.height);
+    
+    ctx.strokeStyle = '#ccc';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(0, 0, template.width, template.height);
+    
+    ctx.fillStyle = '#666';
+    ctx.font = '20px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(template.name, template.width / 2, template.height / 2 - 20);
+    ctx.fillText('(Template Preview)', template.width / 2, template.height / 2 + 20);
+    
+    textBoxes.forEach((textBox) => {
+      drawText(ctx, textBox);
+    });
+    
+    setImageLoaded(true);
+    onCanvasReady(canvas);
+  };
+
   if (!template) {
     return (
-      <div 
-        className="flex items-center justify-center h-64 border-2 border-dashed border-gray-300 rounded-xl bg-gray-50"
-        role="status"
-        aria-label="Waiting for template selection"
-      >
+      <div className="flex items-center justify-center h-64 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
         <div className="text-center">
           <svg className="w-12 h-12 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
           <p className="text-gray-500 text-lg font-medium">Select a meme template to get started</p>
-          <p className="text-gray-400 text-sm mt-2">Your meme preview will appear here</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="w-full">
-      <h3 className="text-xl sm:text-2xl font-semibold mb-6 text-gray-900 text-center">
+    <div className="text-center">
+      <h3 className="text-xl font-semibold mb-4 text-gray-900">
         Meme Preview
       </h3>
       
-      <div className="flex justify-center mb-6">
-        <div className="relative border border-gray-200 rounded-xl overflow-hidden shadow-lg bg-white max-w-full">
-          <canvas
-            ref={canvasRef}
-            className="max-w-full h-auto block"
-            style={{
-              display: imageLoaded ? 'block' : 'none',
-            }}
-            aria-label={`Preview of ${template.name} meme with custom text`}
-          />
-          
-          {!imageLoaded && (
-            <div 
-              className="flex items-center justify-center bg-gray-100" 
-              style={{ width: 400, height: 300 }}
-              role="status"
-              aria-label="Loading meme preview"
-            >
-              <div className="text-center">
-                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mb-4"></div>
-                <p className="text-gray-600 font-medium">Generating your meme...</p>
-                <p className="text-gray-500 text-sm mt-2">This won&apos;t take long!</p>
-              </div>
+      <div className="inline-block border border-gray-300 rounded-lg overflow-hidden bg-white">
+        {!imageLoaded && (
+          <div 
+            className="flex items-center justify-center bg-gray-100" 
+            style={{ width: 400, height: 300 }}
+          >
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mb-4 mx-auto"></div>
+              <p className="text-gray-600">Loading...</p>
             </div>
-          )}
-        </div>
+          </div>
+        )}
+        
+        <canvas
+          ref={canvasRef}
+          className="max-w-full h-auto"
+          style={{
+            display: imageLoaded ? 'block' : 'none',
+          }}
+        />
       </div>
       
       {imageLoaded && (
-        <div className="text-center">
-          <p className="text-sm text-gray-600">
-            ✨ Your meme updates in real-time as you edit
-          </p>
-        </div>
+        <p className="text-sm text-gray-600 mt-4">
+          ✨ Your meme updates in real-time
+        </p>
       )}
     </div>
   );
