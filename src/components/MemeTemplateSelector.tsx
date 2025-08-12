@@ -124,7 +124,7 @@ export default function MemeTemplateSelector({
       </div>
       
       <div className="mt-8 text-center text-sm text-gray-500">
-        <p>Can't find what you're looking for? More templates coming soon! 🎉</p>
+        <p>Can&apos;t find what you&apos;re looking for? More templates coming soon! 🎉</p>
       </div>
     </div>
   );

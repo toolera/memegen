@@ -120,9 +120,63 @@ export default function RootLayout({
             })
           }}
         />
+        
+        {/* Service Worker Registration */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js')
+                    .then(function(registration) {
+                      console.log('SW registered: ', registration);
+                    })
+                    .catch(function(registrationError) {
+                      console.log('SW registration failed: ', registrationError);
+                    });
+                });
+              }
+            `,
+          }}
+        />
       </head>
       <body className={`font-inter antialiased bg-gray-50 text-gray-900`}>
         {children}
+        
+        {/* Install PWA prompt */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              let deferredPrompt;
+              
+              window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                
+                // Show install button
+                const installBtn = document.createElement('button');
+                installBtn.innerText = '📱 Install App';
+                installBtn.className = 'fixed bottom-4 right-4 bg-blue-500 text-white px-4 py-2 rounded-full shadow-lg hover:bg-blue-600 transition-colors z-50';
+                installBtn.onclick = async () => {
+                  if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const result = await deferredPrompt.userChoice;
+                    deferredPrompt = null;
+                    installBtn.remove();
+                  }
+                };
+                document.body.appendChild(installBtn);
+                
+                // Auto-hide after 10 seconds
+                setTimeout(() => {
+                  if (installBtn.parentNode) {
+                    installBtn.remove();
+                  }
+                }, 10000);
+              });
+            `,
+          }}
+        />
       </body>
     </html>
   );

@@ -76,7 +76,7 @@ export default function MemeCanvas({ template, textBoxes, onCanvasReady }: MemeC
     };
 
     img.src = template.url;
-  }, [template, textBoxes, onCanvasReady]);
+  }, [template, textBoxes, onCanvasReady, drawText]);
 
   const wrapText = (ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] => {
     const words = text.split(' ');
@@ -144,7 +144,7 @@ export default function MemeCanvas({ template, textBoxes, onCanvasReady }: MemeC
               <div className="text-center">
                 <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mb-4"></div>
                 <p className="text-gray-600 font-medium">Generating your meme...</p>
-                <p className="text-gray-500 text-sm mt-2">This won't take long!</p>
+                <p className="text-gray-500 text-sm mt-2">This won&apos;t take long!</p>
               </div>
             </div>
           )}
