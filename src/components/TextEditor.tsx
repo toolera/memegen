@@ -21,14 +21,14 @@ export default function TextEditor({
   };
 
   return (
-    <div className="w-full" role="region" aria-labelledby="text-editor-heading">
-      <div className="flex justify-between items-center mb-6">
-        <h3 id="text-editor-heading" className="text-xl sm:text-2xl font-semibold text-gray-900">
+    <div className="w-full">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 space-y-4 sm:space-y-0">
+        <h3 className="text-xl sm:text-2xl font-semibold text-gray-900 text-center sm:text-left">
           Text Editor
         </h3>
         <button
           onClick={onAddTextBox}
-          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 font-medium flex items-center space-x-2"
+          className="w-full sm:w-auto px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 font-medium flex items-center justify-center space-x-2"
           aria-label="Add new text box to meme"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -38,7 +38,7 @@ export default function TextEditor({
         </button>
       </div>
       
-      <div className="space-y-6" role="list" aria-label="Text boxes for editing">
+      <div className="space-y-6">
         {textBoxes.map((textBox, index) => (
           <div 
             key={index} 
@@ -64,8 +64,8 @@ export default function TextEditor({
               )}
             </div>
             
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <div className="lg:col-span-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="sm:col-span-2">
                 <label 
                   htmlFor={`text-input-${index}`}
                   className="block text-sm font-medium text-gray-700 mb-2"

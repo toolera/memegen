@@ -196,18 +196,17 @@ export default function MemeCanvas({ template, textBoxes, onCanvasReady }: MemeC
   }
 
   return (
-    <div className="w-full" role="region" aria-labelledby="canvas-heading">
-      <h3 id="canvas-heading" className="text-xl sm:text-2xl font-semibold mb-4 text-gray-900">
+    <div className="w-full">
+      <h3 className="text-xl sm:text-2xl font-semibold mb-6 text-gray-900 text-center">
         Meme Preview
       </h3>
-      <div className="flex justify-center">
-        <div className="relative border border-gray-200 rounded-xl overflow-hidden shadow-xl bg-white">
+      
+      <div className="flex justify-center mb-6">
+        <div className="relative border border-gray-200 rounded-xl overflow-hidden shadow-lg bg-white max-w-full">
           <canvas
             ref={canvasRef}
             className="max-w-full h-auto block"
             style={{
-              maxWidth: '100%',
-              height: 'auto',
               display: imageLoaded ? 'block' : 'none',
             }}
             aria-label={`Preview of ${template.name} meme with custom text`}
@@ -215,10 +214,9 @@ export default function MemeCanvas({ template, textBoxes, onCanvasReady }: MemeC
           
           {!imageLoaded && (
             <div 
-              className="flex items-center justify-center bg-gray-100 animate-pulse" 
+              className="flex items-center justify-center bg-gray-100" 
               style={{ width: 400, height: 300 }}
               role="status"
-              aria-live="polite"
               aria-label="Loading meme preview"
             >
               <div className="text-center">
@@ -228,19 +226,13 @@ export default function MemeCanvas({ template, textBoxes, onCanvasReady }: MemeC
               </div>
             </div>
           )}
-          
-          {imageLoaded && (
-            <div className="absolute bottom-4 right-4 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded">
-              Live Preview
-            </div>
-          )}
         </div>
       </div>
       
       {imageLoaded && (
-        <div className="mt-4 text-center">
+        <div className="text-center">
           <p className="text-sm text-gray-600">
-            ✨ Looking good! Your meme updates in real-time as you edit.
+            ✨ Your meme updates in real-time as you edit
           </p>
         </div>
       )}

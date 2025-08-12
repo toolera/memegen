@@ -109,17 +109,17 @@ export default function Home() {
       </section>
 
       {/* Progress Indicator */}
-      <div className="bg-white sticky top-0 z-30 shadow-sm border-b">
+      <div className="bg-white border-b shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between py-4">
-            <div className="flex items-center space-x-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-4 space-y-4 sm:space-y-0">
+            <div className="flex items-center justify-center sm:justify-start space-x-4 sm:space-x-8">
               <div className={`flex items-center space-x-2 ${activeStep === 'template' ? 'text-blue-600' : selectedTemplate ? 'text-green-600' : 'text-gray-400'}`}>
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
                   activeStep === 'template' ? 'bg-blue-600 text-white' : 
                   selectedTemplate ? 'bg-green-600 text-white' : 
                   'bg-gray-200 text-gray-600'
                 }`}>1</div>
-                <span className="hidden sm:inline font-medium">Choose Template</span>
+                <span className="text-sm font-medium">Template</span>
               </div>
               
               <div className={`flex items-center space-x-2 ${activeStep === 'edit' ? 'text-blue-600' : canvas ? 'text-green-600' : 'text-gray-400'}`}>
@@ -128,7 +128,7 @@ export default function Home() {
                   canvas ? 'bg-green-600 text-white' : 
                   'bg-gray-200 text-gray-600'
                 }`}>2</div>
-                <span className="hidden sm:inline font-medium">Edit Text</span>
+                <span className="text-sm font-medium">Edit</span>
               </div>
               
               <div className={`flex items-center space-x-2 ${activeStep === 'download' ? 'text-blue-600' : 'text-gray-400'}`}>
@@ -136,14 +136,14 @@ export default function Home() {
                   activeStep === 'download' ? 'bg-blue-600 text-white' : 
                   'bg-gray-200 text-gray-600'
                 }`}>3</div>
-                <span className="hidden sm:inline font-medium">Download & Share</span>
+                <span className="text-sm font-medium">Download</span>
               </div>
             </div>
             
             {selectedTemplate && (
               <button
                 onClick={resetToTemplateSelection}
-                className="text-sm text-gray-500 hover:text-gray-700 flex items-center space-x-1"
+                className="text-sm text-gray-500 hover:text-gray-700 flex items-center justify-center space-x-1 px-3 py-1 rounded-md hover:bg-gray-100"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -177,9 +177,9 @@ export default function Home() {
 
         {/* Edit Step */}
         {(activeStep === 'edit' || activeStep === 'download') && selectedTemplate && (
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-            {/* Left Column - Canvas */}
-            <div className="order-2 xl:order-1">
+          <div className="space-y-8">
+            {/* Canvas Section */}
+            <div className="w-full">
               <MemeCanvas
                 template={selectedTemplate}
                 textBoxes={textBoxes}
@@ -187,10 +187,10 @@ export default function Home() {
               />
             </div>
 
-            {/* Right Column - Controls */}
-            <div className="order-1 xl:order-2 space-y-6">
+            {/* Controls Section */}
+            <div className="w-full">
               {activeStep === 'edit' && (
-                <div className="animate-slide-in-right">
+                <div>
                   <TextEditor
                     textBoxes={textBoxes}
                     onTextBoxChange={handleTextBoxChange}
@@ -201,7 +201,7 @@ export default function Home() {
               )}
 
               {activeStep === 'download' && (
-                <div className="animate-slide-in-right">
+                <div>
                   <DownloadShare
                     canvas={canvas}
                     memeName={selectedTemplate.name}
@@ -212,7 +212,7 @@ export default function Home() {
                     <div className="text-center">
                       <div className="text-2xl font-bold text-green-700 mb-1">🎉 Meme Ready!</div>
                       <p className="text-green-600 mb-4">Your meme has been generated successfully</p>
-                      <div className="grid grid-cols-3 gap-4 text-sm">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
                         <div className="text-center">
                           <div className="font-semibold text-gray-900">1M+</div>
                           <div className="text-gray-600">Memes Created</div>

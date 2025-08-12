@@ -156,7 +156,7 @@ export default function RootLayout({
                 // Show install button
                 const installBtn = document.createElement('button');
                 installBtn.innerText = '📱 Install App';
-                installBtn.className = 'fixed bottom-4 right-4 bg-blue-500 text-white px-4 py-2 rounded-full shadow-lg hover:bg-blue-600 transition-colors z-50';
+                installBtn.className = 'fixed bottom-4 right-4 bg-blue-500 text-white px-4 py-2 rounded-full shadow-lg hover:bg-blue-600 transition-colors z-40';
                 installBtn.onclick = async () => {
                   if (deferredPrompt) {
                     deferredPrompt.prompt();
