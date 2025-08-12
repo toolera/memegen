@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { MemeTemplate, TextBox } from '@/types/meme';
 import { POPULAR_MEME_TEMPLATES, getDefaultTextBoxes } from '@/data/memeTemplates';
@@ -56,7 +56,7 @@ export default function Home() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const img = new Image();
+    const img = document.createElement('img');
     img.crossOrigin = 'anonymous';
     
     img.onload = () => {
