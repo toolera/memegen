@@ -31,10 +31,10 @@ export default function Home() {
     const newTextBox: TextBox = {
       text: 'NEW TEXT',
       x: selectedTemplate.width * 0.5,
-      y: selectedTemplate.height * 0.5,
-      width: selectedTemplate.width * 0.9,
+      y: selectedTemplate.height * 0.8,
+      width: selectedTemplate.width * 0.8,
       height: selectedTemplate.height * 0.15,
-      fontSize: 32,
+      fontSize: Math.min(40, selectedTemplate.width / 10),
       color: '#FFFFFF',
       fontFamily: 'Impact',
       textAlign: 'center',

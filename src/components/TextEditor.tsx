@@ -60,26 +60,30 @@ export default function TextEditor({
             
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-medium mb-1">Font Size</label>
+                <label className="block text-sm font-medium mb-1">
+                  Font Size: {textBox.fontSize}px
+                </label>
                 <input
                   type="range"
-                  min="12"
-                  max="72"
+                  min="16"
+                  max="80"
                   value={textBox.fontSize}
                   onChange={(e) => handleChange(index, 'fontSize', parseInt(e.target.value))}
                   className="w-full"
                 />
-                <span className="text-sm text-gray-600">{textBox.fontSize}px</span>
               </div>
               
               <div>
                 <label className="block text-sm font-medium mb-1">Color</label>
-                <input
-                  type="color"
-                  value={textBox.color}
-                  onChange={(e) => handleChange(index, 'color', e.target.value)}
-                  className="w-full h-10"
-                />
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={textBox.color}
+                    onChange={(e) => handleChange(index, 'color', e.target.value)}
+                    className="w-12 h-10 rounded border"
+                  />
+                  <span className="text-sm font-mono">{textBox.color}</span>
+                </div>
               </div>
             </div>
             
@@ -94,6 +98,8 @@ export default function TextEditor({
                   <option value="Impact">Impact</option>
                   <option value="Arial">Arial</option>
                   <option value="Georgia">Georgia</option>
+                  <option value="Times New Roman">Times New Roman</option>
+                  <option value="Courier New">Courier New</option>
                 </select>
               </div>
               
@@ -108,6 +114,36 @@ export default function TextEditor({
                   <option value="center">Center</option>
                   <option value="right">Right</option>
                 </select>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  X Position: {Math.round(textBox.x)}
+                </label>
+                <input
+                  type="range"
+                  min="0"
+                  max="800"
+                  value={textBox.x}
+                  onChange={(e) => handleChange(index, 'x', parseInt(e.target.value))}
+                  className="w-full"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Y Position: {Math.round(textBox.y)}
+                </label>
+                <input
+                  type="range"
+                  min="0"
+                  max="800"
+                  value={textBox.y}
+                  onChange={(e) => handleChange(index, 'y', parseInt(e.target.value))}
+                  className="w-full"
+                />
               </div>
             </div>
           </div>
