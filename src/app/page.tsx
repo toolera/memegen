@@ -12,12 +12,11 @@ export default function Home() {
   const [selectedTemplate, setSelectedTemplate] = useState<MemeTemplate | null>(null);
   const [textBoxes, setTextBoxes] = useState<TextBox[]>([]);
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
-  const [step, setStep] = useState<'template' | 'edit' | 'download'>('template');
 
   const handleTemplateSelect = (template: MemeTemplate) => {
     setSelectedTemplate(template);
     setTextBoxes(getDefaultTextBoxes(template));
-    setStep('edit');
+    setCanvas(null);
   };
 
   const handleTextBoxChange = (index: number, textBox: TextBox) => {
@@ -48,76 +47,50 @@ export default function Home() {
 
   const handleCanvasReady = useCallback((canvas: HTMLCanvasElement) => {
     setCanvas(canvas);
-    setStep('download');
   }, []);
 
-  const resetToStart = () => {
-    setSelectedTemplate(null);
-    setTextBoxes([]);
-    setCanvas(null);
-    setStep('template');
-  };
-
   return (
-    <div className="p-4 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold text-center mb-8">Meme Generator</h1>
+    <div className="p-4 max-w-7xl mx-auto">
+      <h1 className="text-3xl font-bold text-center mb-8">Meme Generator</h1>
       
-      {step === 'template' && (
-        <MemeTemplateSelector
-          selectedTemplate={selectedTemplate}
-          onTemplateSelect={handleTemplateSelect}
-        />
-      )}
-
-      {step === 'edit' && selectedTemplate && (
-        <div>
-          <button 
-            onClick={resetToStart}
-            className="mb-4 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-          >
-            ← Back to Templates
-          </button>
-          
-          <MemeCanvas
-            template={selectedTemplate}
-            textBoxes={textBoxes}
-            onCanvasReady={handleCanvasReady}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Left Column */}
+        <div className="space-y-6">
+          <MemeTemplateSelector
+            selectedTemplate={selectedTemplate}
+            onTemplateSelect={handleTemplateSelect}
           />
           
-          <div className="mt-8">
+          {selectedTemplate && textBoxes.length > 0 && (
             <TextEditor
               textBoxes={textBoxes}
               onTextBoxChange={handleTextBoxChange}
               onAddTextBox={handleAddTextBox}
               onRemoveTextBox={handleRemoveTextBox}
             />
-          </div>
+          )}
         </div>
-      )}
 
-      {step === 'download' && selectedTemplate && canvas && (
-        <div>
-          <button 
-            onClick={resetToStart}
-            className="mb-4 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-          >
-            ← Start Over
-          </button>
-          
-          <MemeCanvas
-            template={selectedTemplate}
-            textBoxes={textBoxes}
-            onCanvasReady={handleCanvasReady}
-          />
-          
-          <div className="mt-8">
-            <DownloadShare
-              canvas={canvas}
-              memeName={selectedTemplate.name}
-            />
-          </div>
+        {/* Right Column */}
+        <div className="space-y-6">
+          {selectedTemplate && (
+            <>
+              <MemeCanvas
+                template={selectedTemplate}
+                textBoxes={textBoxes}
+                onCanvasReady={handleCanvasReady}
+              />
+              
+              {canvas && (
+                <DownloadShare
+                  canvas={canvas}
+                  memeName={selectedTemplate.name}
+                />
+              )}
+            </>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }

@@ -20,6 +20,8 @@ export default function MemeCanvas({ template, textBoxes, onCanvasReady }: MemeC
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    setLoaded(false);
+
     const img = new Image();
     img.crossOrigin = 'anonymous';
     
@@ -69,27 +71,44 @@ export default function MemeCanvas({ template, textBoxes, onCanvasReady }: MemeC
       });
 
       setLoaded(true);
+      // Only call onCanvasReady after the canvas is fully rendered
       onCanvasReady(canvas);
+    };
+
+    img.onerror = () => {
+      console.error('Failed to load image:', template.url);
+      setLoaded(false);
     };
 
     img.src = template.url;
   }, [template, textBoxes, onCanvasReady]);
 
   if (!template) {
-    return <div className="p-8 bg-gray-100 text-center">Select a template</div>;
+    return (
+      <div className="flex items-center justify-center h-64 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
+        <p className="text-gray-500">Select a template to start</p>
+      </div>
+    );
   }
 
   return (
     <div className="text-center">
       <h3 className="text-lg font-bold mb-4">Preview</h3>
-      <canvas
-        ref={canvasRef}
-        className="border max-w-full h-auto"
-        style={{ display: loaded ? 'block' : 'none' }}
-      />
-      {!loaded && (
-        <div className="p-8 bg-gray-100">Loading...</div>
-      )}
+      <div className="inline-block border border-gray-300 rounded-lg overflow-hidden bg-white">
+        <canvas
+          ref={canvasRef}
+          className="max-w-full h-auto block"
+          style={{ display: loaded ? 'block' : 'none' }}
+        />
+        {!loaded && (
+          <div className="flex items-center justify-center bg-gray-100 p-8">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mb-2 mx-auto"></div>
+              <p className="text-gray-600 text-sm">Loading...</p>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
