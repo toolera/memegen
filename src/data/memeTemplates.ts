@@ -74,25 +74,25 @@ export const getDefaultTextBoxes = (template: MemeTemplate) => {
     case 'drake':
       return [
         {
-          text: 'Top text',
-          x: template.width * 0.5,
+          text: 'NO TO THIS',
+          x: template.width * 0.75,
           y: template.height * 0.25,
-          width: template.width * 0.45,
+          width: template.width * 0.4,
           height: template.height * 0.2,
-          fontSize: 40,
-          color: '#000000',
-          fontFamily: 'Arial',
+          fontSize: Math.max(32, template.width / 15),
+          color: '#FFFFFF',
+          fontFamily: 'Impact',
           textAlign: 'center' as const
         },
         {
-          text: 'Bottom text',
-          x: template.width * 0.5,
+          text: 'YES TO THIS',
+          x: template.width * 0.75,
           y: template.height * 0.75,
-          width: template.width * 0.45,
+          width: template.width * 0.4,
           height: template.height * 0.2,
-          fontSize: 40,
-          color: '#000000',
-          fontFamily: 'Arial',
+          fontSize: Math.max(32, template.width / 15),
+          color: '#FFFFFF',
+          fontFamily: 'Impact',
           textAlign: 'center' as const
         }
       ];
@@ -100,51 +100,56 @@ export const getDefaultTextBoxes = (template: MemeTemplate) => {
     case 'distracted-boyfriend':
       return [
         {
-          text: 'Girlfriend',
+          text: 'ME',
+          x: template.width * 0.5,
+          y: template.height * 0.15,
+          width: template.width * 0.2,
+          height: template.height * 0.1,
+          fontSize: Math.max(24, template.width / 20),
+          color: '#FFFFFF',
+          fontFamily: 'Impact',
+          textAlign: 'center' as const
+        },
+        {
+          text: 'OLD THING',
           x: template.width * 0.15,
           y: template.height * 0.15,
           width: template.width * 0.25,
-          height: template.height * 0.15,
-          fontSize: 30,
+          height: template.height * 0.1,
+          fontSize: Math.max(20, template.width / 25),
           color: '#FFFFFF',
-          fontFamily: 'Arial',
+          fontFamily: 'Impact',
           textAlign: 'center' as const
         },
         {
-          text: 'Boyfriend',
-          x: template.width * 0.5,
+          text: 'NEW THING',
+          x: template.width * 0.85,
           y: template.height * 0.15,
           width: template.width * 0.25,
-          height: template.height * 0.15,
-          fontSize: 30,
+          height: template.height * 0.1,
+          fontSize: Math.max(20, template.width / 25),
           color: '#FFFFFF',
-          fontFamily: 'Arial',
-          textAlign: 'center' as const
-        },
-        {
-          text: 'Other girl',
-          x: template.width * 0.8,
-          y: template.height * 0.15,
-          width: template.width * 0.25,
-          height: template.height * 0.15,
-          fontSize: 30,
-          color: '#FFFFFF',
-          fontFamily: 'Arial',
+          fontFamily: 'Impact',
           textAlign: 'center' as const
         }
       ];
     
     default:
       for (let i = 0; i < template.box_count; i++) {
+        const isTopText = i === 0;
+        const isBottomText = i === template.box_count - 1 && template.box_count === 2;
+        
         defaultBoxes.push({
-          text: `Text ${i + 1}`,
+          text: isTopText ? 'TOP TEXT' : isBottomText ? 'BOTTOM TEXT' : `TEXT ${i + 1}`,
           x: template.width * 0.5,
-          y: (template.height / (template.box_count + 1)) * (i + 1),
-          width: template.width * 0.8,
-          height: template.height * 0.1,
-          fontSize: Math.max(20, Math.min(40, template.width / 25)),
+          y: isTopText ? template.height * 0.15 : 
+              isBottomText ? template.height * 0.85 :
+              (template.height / (template.box_count + 1)) * (i + 1),
+          width: template.width * 0.9,
+          height: template.height * 0.15,
+          fontSize: Math.max(24, Math.min(48, template.width / 15)),
           color: '#FFFFFF',
-          fontFamily: 'Arial',
+          fontFamily: 'Impact',
           textAlign: 'center' as const
         });
       }

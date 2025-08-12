@@ -16,16 +16,19 @@ export default function MemeCanvas({ template, textBoxes, onCanvasReady }: MemeC
   const drawText = (ctx: CanvasRenderingContext2D, textBox: TextBox) => {
     const { text, x, y, fontSize, color, fontFamily, textAlign } = textBox;
     
-    ctx.font = `${fontSize}px ${fontFamily}`;
-    ctx.fillStyle = color;
+    ctx.font = `bold ${fontSize}px ${fontFamily}`;
     ctx.textAlign = textAlign;
     ctx.textBaseline = 'middle';
     
-    ctx.strokeStyle = '#000000';
-    ctx.lineWidth = Math.max(1, fontSize / 15);
+    // Enhanced stroke for better visibility
+    const strokeColor = color === '#FFFFFF' || color.toLowerCase() === '#ffffff' ? '#000000' : '#FFFFFF';
+    ctx.strokeStyle = strokeColor;
+    ctx.lineWidth = Math.max(3, fontSize / 8); // Thicker stroke
+    ctx.lineJoin = 'round';
+    ctx.miterLimit = 2;
     
     const lines = wrapText(ctx, text, textBox.width);
-    const lineHeight = fontSize * 1.2;
+    const lineHeight = fontSize * 1.3;
     const totalHeight = lines.length * lineHeight;
     const startY = y - totalHeight / 2;
     
@@ -39,9 +42,11 @@ export default function MemeCanvas({ template, textBoxes, onCanvasReady }: MemeC
         textX = x + textBox.width / 2;
       }
       
-      if (color !== '#FFFFFF') {
-        ctx.strokeText(line, textX, lineY);
-      }
+      // Always draw stroke first for visibility
+      ctx.strokeText(line, textX, lineY);
+      
+      // Then draw the filled text
+      ctx.fillStyle = color;
       ctx.fillText(line, textX, lineY);
     });
   };
@@ -53,30 +58,105 @@ export default function MemeCanvas({ template, textBoxes, onCanvasReady }: MemeC
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    setImageLoaded(false);
+    
     const img = new Image();
+    
+    // Try different approaches for CORS
     img.crossOrigin = 'anonymous';
     
     img.onload = () => {
-      setImageLoaded(true);
-      canvas.width = template.width;
-      canvas.height = template.height;
-      
-      ctx.drawImage(img, 0, 0, template.width, template.height);
-      
-      textBoxes.forEach((textBox) => {
-        drawText(ctx, textBox);
-      });
+      try {
+        // Set canvas dimensions
+        canvas.width = template.width;
+        canvas.height = template.height;
+        
+        // Clear canvas first
+        ctx.clearRect(0, 0, template.width, template.height);
+        
+        // Draw the background image
+        ctx.drawImage(img, 0, 0, template.width, template.height);
+        
+        // Draw all text boxes
+        textBoxes.forEach((textBox) => {
+          drawText(ctx, textBox);
+        });
 
-      onCanvasReady(canvas);
+        setImageLoaded(true);
+        onCanvasReady(canvas);
+      } catch (error) {
+        console.error('Error drawing to canvas:', error);
+        setImageLoaded(false);
+      }
     };
 
-    img.onerror = () => {
-      console.error('Failed to load image:', template.url);
-      setImageLoaded(false);
+    img.onerror = (error) => {
+      console.error('Failed to load image:', template.url, error);
+      
+      // Fallback: try without crossOrigin
+      const fallbackImg = new Image();
+      fallbackImg.onload = () => {
+        try {
+          canvas.width = template.width;
+          canvas.height = template.height;
+          ctx.clearRect(0, 0, template.width, template.height);
+          ctx.drawImage(fallbackImg, 0, 0, template.width, template.height);
+          
+          textBoxes.forEach((textBox) => {
+            drawText(ctx, textBox);
+          });
+
+          setImageLoaded(true);
+          onCanvasReady(canvas);
+        } catch (fallbackError) {
+          console.error('Fallback image loading also failed:', fallbackError);
+          // Create a placeholder canvas
+          createPlaceholderCanvas(ctx, template);
+        }
+      };
+      
+      fallbackImg.onerror = () => {
+        console.error('Fallback image also failed');
+        createPlaceholderCanvas(ctx, template);
+      };
+      
+      fallbackImg.src = template.url;
     };
 
+    // Load the main image
     img.src = template.url;
   }, [template, textBoxes, onCanvasReady, drawText]);
+
+  const createPlaceholderCanvas = (ctx: CanvasRenderingContext2D, template: MemeTemplate) => {
+    const canvas = ctx.canvas;
+    canvas.width = template.width;
+    canvas.height = template.height;
+    
+    // Create a placeholder background
+    ctx.fillStyle = '#f0f0f0';
+    ctx.fillRect(0, 0, template.width, template.height);
+    
+    // Add border
+    ctx.strokeStyle = '#ccc';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(0, 0, template.width, template.height);
+    
+    // Add placeholder text
+    ctx.fillStyle = '#666';
+    ctx.font = '20px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(template.name, template.width / 2, template.height / 2 - 20);
+    ctx.fillText('(Template Preview)', template.width / 2, template.height / 2 + 20);
+    
+    // Draw user text boxes
+    textBoxes.forEach((textBox) => {
+      drawText(ctx, textBox);
+    });
+    
+    setImageLoaded(true);
+    onCanvasReady(canvas);
+  };
 
   const wrapText = (ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] => {
     const words = text.split(' ');
@@ -136,7 +216,7 @@ export default function MemeCanvas({ template, textBoxes, onCanvasReady }: MemeC
           {!imageLoaded && (
             <div 
               className="flex items-center justify-center bg-gray-100 animate-pulse" 
-              style={{ width: Math.min(400, window.innerWidth - 32), height: 300 }}
+              style={{ width: 400, height: 300 }}
               role="status"
               aria-live="polite"
               aria-label="Loading meme preview"

@@ -30,12 +30,12 @@ export default function Home() {
     if (!selectedTemplate) return;
     
     const newTextBox: TextBox = {
-      text: 'New text',
+      text: 'NEW TEXT',
       x: selectedTemplate.width * 0.5,
       y: selectedTemplate.height * 0.5,
-      width: selectedTemplate.width * 0.8,
-      height: selectedTemplate.height * 0.1,
-      fontSize: Math.max(20, Math.min(40, selectedTemplate.width / 25)),
+      width: selectedTemplate.width * 0.9,
+      height: selectedTemplate.height * 0.15,
+      fontSize: Math.max(24, Math.min(48, selectedTemplate.width / 15)),
       color: '#FFFFFF',
       fontFamily: 'Impact',
       textAlign: 'center',
