@@ -99,33 +99,71 @@ export default function MemeCanvas({ template, textBoxes, onCanvasReady }: MemeC
 
   if (!template) {
     return (
-      <div className="flex items-center justify-center h-64 border-2 border-dashed border-gray-300 rounded-lg">
-        <p className="text-gray-500">Select a meme template to get started</p>
+      <div 
+        className="flex items-center justify-center h-64 border-2 border-dashed border-gray-300 rounded-xl bg-gray-50"
+        role="status"
+        aria-label="Waiting for template selection"
+      >
+        <div className="text-center">
+          <svg className="w-12 h-12 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          <p className="text-gray-500 text-lg font-medium">Select a meme template to get started</p>
+          <p className="text-gray-400 text-sm mt-2">Your meme preview will appear here</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="w-full">
-      <h3 className="text-xl font-semibold mb-4">Meme Preview</h3>
+    <div className="w-full" role="region" aria-labelledby="canvas-heading">
+      <h3 id="canvas-heading" className="text-xl sm:text-2xl font-semibold mb-4 text-gray-900">
+        Meme Preview
+      </h3>
       <div className="flex justify-center">
-        <div className="border border-gray-300 rounded-lg overflow-hidden shadow-lg">
+        <div className="relative border border-gray-200 rounded-xl overflow-hidden shadow-xl bg-white">
           <canvas
             ref={canvasRef}
-            className="max-w-full h-auto"
+            className="max-w-full h-auto block"
             style={{
               maxWidth: '100%',
               height: 'auto',
               display: imageLoaded ? 'block' : 'none',
             }}
+            aria-label={`Preview of ${template.name} meme with custom text`}
           />
+          
           {!imageLoaded && (
-            <div className="flex items-center justify-center bg-gray-200" style={{ width: 400, height: 300 }}>
-              <p className="text-gray-500">Loading image...</p>
+            <div 
+              className="flex items-center justify-center bg-gray-100 animate-pulse" 
+              style={{ width: Math.min(400, window.innerWidth - 32), height: 300 }}
+              role="status"
+              aria-live="polite"
+              aria-label="Loading meme preview"
+            >
+              <div className="text-center">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mb-4"></div>
+                <p className="text-gray-600 font-medium">Generating your meme...</p>
+                <p className="text-gray-500 text-sm mt-2">This won't take long!</p>
+              </div>
+            </div>
+          )}
+          
+          {imageLoaded && (
+            <div className="absolute bottom-4 right-4 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded">
+              Live Preview
             </div>
           )}
         </div>
       </div>
+      
+      {imageLoaded && (
+        <div className="mt-4 text-center">
+          <p className="text-sm text-gray-600">
+            ✨ Looking good! Your meme updates in real-time as you edit.
+          </p>
+        </div>
+      )}
     </div>
   );
 }
