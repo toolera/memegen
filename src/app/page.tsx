@@ -2,296 +2,179 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
-import { MemeTemplate, TextBox } from '@/types/meme';
-import { POPULAR_MEME_TEMPLATES, getDefaultTextBoxes } from '@/data/memeTemplates';
+
+interface MemeTemplate {
+  id: number;
+  name: string;
+  url: string;
+  width: number;
+  height: number;
+}
+
+const MEME_TEMPLATES: MemeTemplate[] = [
+  { id: 1, name: 'Drake', url: 'https://i.imgflip.com/30b1gx.jpg', width: 300, height: 300 },
+  { id: 2, name: 'Distracted Boyfriend', url: 'https://i.imgflip.com/1ur9b0.jpg', width: 400, height: 300 },
+  { id: 3, name: 'Two Buttons', url: 'https://i.imgflip.com/1g8my4.jpg', width: 400, height: 300 },
+  { id: 4, name: 'Change My Mind', url: 'https://i.imgflip.com/24y43o.jpg', width: 400, height: 300 },
+  { id: 5, name: 'Woman Yelling at Cat', url: 'https://i.imgflip.com/345v97.jpg', width: 400, height: 300 },
+  { id: 6, name: 'Mocking SpongeBob', url: 'https://i.imgflip.com/1otk96.jpg', width: 400, height: 300 },
+];
 
 export default function Home() {
   const [selectedTemplate, setSelectedTemplate] = useState<MemeTemplate | null>(null);
-  const [textBoxes, setTextBoxes] = useState<TextBox[]>([]);
-  const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
+  const [topText, setTopText] = useState('');
+  const [bottomText, setBottomText] = useState('');
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [imageLoaded, setImageLoaded] = useState(false);
 
-  // Handle template selection
-  const handleTemplateSelect = (template: MemeTemplate) => {
-    setSelectedTemplate(template);
-    const defaultTextBoxes = getDefaultTextBoxes(template);
-    setTextBoxes(defaultTextBoxes);
-  };
-
-  // Handle text changes
-  const handleTextChange = (index: number, field: keyof TextBox, value: string | number) => {
-    const newTextBoxes = [...textBoxes];
-    newTextBoxes[index] = { ...newTextBoxes[index], [field]: value };
-    setTextBoxes(newTextBoxes);
-  };
-
-  // Add new text box
-  const addTextBox = () => {
-    if (!selectedTemplate) return;
-    const newTextBox: TextBox = {
-      text: 'New Text',
-      x: selectedTemplate.width * 0.5,
-      y: selectedTemplate.height * 0.7,
-      width: selectedTemplate.width * 0.8,
-      height: selectedTemplate.height * 0.15,
-      fontSize: 32,
-      color: '#FFFFFF',
-      fontFamily: 'Impact',
-      textAlign: 'center',
-    };
-    setTextBoxes([...textBoxes, newTextBox]);
-  };
-
-  // Remove text box
-  const removeTextBox = (index: number) => {
-    setTextBoxes(textBoxes.filter((_, i) => i !== index));
-  };
-
-  // Draw canvas
   useEffect(() => {
     if (!selectedTemplate || !canvasRef.current) return;
 
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-
+    
     const img = document.createElement('img');
     img.crossOrigin = 'anonymous';
-    
+
     img.onload = () => {
       canvas.width = selectedTemplate.width;
       canvas.height = selectedTemplate.height;
       
-      ctx.clearRect(0, 0, selectedTemplate.width, selectedTemplate.height);
       ctx.drawImage(img, 0, 0, selectedTemplate.width, selectedTemplate.height);
       
       // Draw text
-      textBoxes.forEach((textBox) => {
-        ctx.font = `bold ${textBox.fontSize}px ${textBox.fontFamily}`;
-        ctx.fillStyle = textBox.color;
-        ctx.strokeStyle = textBox.color === '#FFFFFF' ? '#000000' : '#FFFFFF';
-        ctx.lineWidth = 3;
-        ctx.textAlign = textBox.textAlign;
-        ctx.textBaseline = 'middle';
-        
-        const words = textBox.text.split(' ');
-        const lines = [];
-        let currentLine = words[0] || '';
-        
-        for (let i = 1; i < words.length; i++) {
-          const testLine = currentLine + ' ' + words[i];
-          const metrics = ctx.measureText(testLine);
-          if (metrics.width > textBox.width && currentLine) {
-            lines.push(currentLine);
-            currentLine = words[i];
-          } else {
-            currentLine = testLine;
-          }
-        }
-        lines.push(currentLine);
-        
-        const lineHeight = textBox.fontSize * 1.2;
-        const startY = textBox.y - (lines.length * lineHeight) / 2;
-        
-        lines.forEach((line, index) => {
-          const y = startY + (index * lineHeight);
-          ctx.strokeText(line, textBox.x, y);
-          ctx.fillText(line, textBox.x, y);
-        });
-      });
-
-      setImageLoaded(true);
-      setCanvas(canvas);
+      ctx.font = 'bold 30px Impact';
+      ctx.fillStyle = '#FFFFFF';
+      ctx.strokeStyle = '#000000';
+      ctx.lineWidth = 2;
+      ctx.textAlign = 'center';
+      
+      // Top text
+      if (topText) {
+        ctx.fillText(topText, canvas.width / 2, 40);
+        ctx.strokeText(topText, canvas.width / 2, 40);
+      }
+      
+      // Bottom text
+      if (bottomText) {
+        ctx.fillText(bottomText, canvas.width / 2, canvas.height - 20);
+        ctx.strokeText(bottomText, canvas.width / 2, canvas.height - 20);
+      }
     };
 
     img.src = selectedTemplate.url;
-  }, [selectedTemplate, textBoxes]);
+  }, [selectedTemplate, topText, bottomText]);
 
-  // Download meme
   const downloadMeme = () => {
-    if (!canvas) return;
-    canvas.toBlob((blob) => {
-      if (blob) {
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.download = `meme-${Date.now()}.png`;
-        link.href = url;
-        link.click();
-        URL.revokeObjectURL(url);
-      }
-    }, 'image/png');
+    if (!canvasRef.current) return;
+    
+    const link = document.createElement('a');
+    link.download = `meme-${Date.now()}.png`;
+    link.href = canvasRef.current.toDataURL();
+    link.click();
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
-      <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold text-center mb-8">Meme Generator</h1>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
-          {/* Templates */}
-          <div className="bg-white p-4 rounded-lg shadow">
-            <h2 className="text-xl font-bold mb-4">1. Choose Template</h2>
-            <div className="grid grid-cols-2 gap-3">
-              {POPULAR_MEME_TEMPLATES.map((template) => (
-                <div
-                  key={template.id}
-                  className={`cursor-pointer border-2 rounded-lg overflow-hidden ${
-                    selectedTemplate?.id === template.id ? 'border-blue-500' : 'border-gray-200'
-                  }`}
-                  onClick={() => handleTemplateSelect(template)}
-                >
-                  <div className="aspect-square relative bg-gray-200">
-                    <Image
-                      src={template.url}
-                      alt={template.name}
-                      fill
-                      className="object-cover"
-                      sizes="150px"
-                    />
-                  </div>
-                  <div className="p-2 text-center">
-                    <p className="text-sm font-medium truncate">{template.name}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-500 to-red-500 p-6">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-5xl font-black text-white mb-2">🔥 MEME MAKER 🔥</h1>
+          <p className="text-white/80 text-lg">Create viral memes in seconds!</p>
+        </div>
 
-          {/* Preview */}
-          <div className="bg-white p-4 rounded-lg shadow">
-            <h2 className="text-xl font-bold mb-4">2. Preview</h2>
-            <div className="flex justify-center">
-              {selectedTemplate ? (
-                <div className="border rounded-lg overflow-hidden bg-gray-100">
-                  <canvas
-                    ref={canvasRef}
-                    className="max-w-full h-auto"
-                    style={{ display: imageLoaded ? 'block' : 'none' }}
-                  />
-                  {!imageLoaded && (
-                    <div className="flex items-center justify-center w-80 h-60">
-                      <p>Loading...</p>
+        <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 shadow-2xl border border-white/20">
+          <div className="grid lg:grid-cols-2 gap-8">
+            
+            {/* Left: Templates & Controls */}
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-2xl font-bold text-white mb-4">Choose Template</h2>
+                <div className="grid grid-cols-3 gap-3">
+                  {MEME_TEMPLATES.map((template) => (
+                    <div
+                      key={template.id}
+                      className={`cursor-pointer rounded-xl overflow-hidden transform hover:scale-105 transition-all ${
+                        selectedTemplate?.id === template.id 
+                          ? 'ring-4 ring-yellow-400 shadow-lg' 
+                          : 'hover:shadow-lg'
+                      }`}
+                      onClick={() => setSelectedTemplate(template)}
+                    >
+                      <div className="relative w-full h-20">
+                        <Image
+                          src={template.url}
+                          alt={template.name}
+                          fill
+                          className="object-cover"
+                          sizes="150px"
+                        />
+                      </div>
+                      <div className="bg-white/20 backdrop-blur-sm p-2">
+                        <p className="text-white text-xs font-semibold text-center truncate">
+                          {template.name}
+                        </p>
+                      </div>
                     </div>
-                  )}
+                  ))}
                 </div>
-              ) : (
-                <div className="flex items-center justify-center w-80 h-60 border-2 border-dashed border-gray-300 rounded-lg">
-                  <p className="text-gray-500">Select a template</p>
+              </div>
+
+              {selectedTemplate && (
+                <div className="space-y-4">
+                  <h3 className="text-xl font-bold text-white">Add Your Text</h3>
+                  
+                  <input
+                    type="text"
+                    placeholder="Top text..."
+                    value={topText}
+                    onChange={(e) => setTopText(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-yellow-400 font-semibold"
+                  />
+                  
+                  <input
+                    type="text"
+                    placeholder="Bottom text..."
+                    value={bottomText}
+                    onChange={(e) => setBottomText(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-yellow-400 font-semibold"
+                  />
+
+                  <button
+                    onClick={downloadMeme}
+                    className="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-bold py-4 px-6 rounded-xl hover:from-yellow-300 hover:to-orange-400 transform hover:scale-105 transition-all shadow-lg"
+                  >
+                    🚀 DOWNLOAD MEME
+                  </button>
                 </div>
               )}
             </div>
-          </div>
 
-          {/* Editor */}
-          <div className="bg-white p-4 rounded-lg shadow">
-            <h2 className="text-xl font-bold mb-4">3. Edit & Download</h2>
-            
-            {selectedTemplate && (
-              <div className="space-y-4">
-                <button
-                  onClick={addTextBox}
-                  className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600"
-                >
-                  Add Text
-                </button>
-                
-                {textBoxes.map((textBox, index) => (
-                  <div key={index} className="border rounded-lg p-3 bg-gray-50">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="font-medium">Text {index + 1}</span>
-                      {textBoxes.length > 1 && (
-                        <button
-                          onClick={() => removeTextBox(index)}
-                          className="text-red-500 text-sm hover:text-red-700"
-                        >
-                          Remove
-                        </button>
-                      )}
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <input
-                        type="text"
-                        value={textBox.text}
-                        onChange={(e) => handleTextChange(index, 'text', e.target.value)}
-                        className="w-full p-2 border rounded"
-                        placeholder="Enter text"
-                      />
-                      
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <label className="text-sm">Size: {textBox.fontSize}</label>
-                          <input
-                            type="range"
-                            min="16"
-                            max="72"
-                            value={textBox.fontSize}
-                            onChange={(e) => handleTextChange(index, 'fontSize', parseInt(e.target.value))}
-                            className="w-full"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-sm">Color</label>
-                          <input
-                            type="color"
-                            value={textBox.color}
-                            onChange={(e) => handleTextChange(index, 'color', e.target.value)}
-                            className="w-full h-8 rounded border"
-                          />
-                        </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <label className="text-sm">X: {Math.round(textBox.x)}</label>
-                          <input
-                            type="range"
-                            min="0"
-                            max="800"
-                            value={textBox.x}
-                            onChange={(e) => handleTextChange(index, 'x', parseInt(e.target.value))}
-                            className="w-full"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-sm">Y: {Math.round(textBox.y)}</label>
-                          <input
-                            type="range"
-                            min="0"
-                            max="800"
-                            value={textBox.y}
-                            onChange={(e) => handleTextChange(index, 'y', parseInt(e.target.value))}
-                            className="w-full"
-                          />
-                        </div>
-                      </div>
-                      
-                      <select
-                        value={textBox.fontFamily}
-                        onChange={(e) => handleTextChange(index, 'fontFamily', e.target.value)}
-                        className="w-full p-2 border rounded"
-                      >
-                        <option value="Impact">Impact</option>
-                        <option value="Arial">Arial</option>
-                        <option value="Georgia">Georgia</option>
-                      </select>
+            {/* Right: Preview */}
+            <div className="flex flex-col items-center justify-center">
+              <h3 className="text-xl font-bold text-white mb-4">Preview</h3>
+              <div className="bg-white/10 rounded-2xl p-4 backdrop-blur-sm border border-white/20">
+                {selectedTemplate ? (
+                  <canvas
+                    ref={canvasRef}
+                    className="max-w-full h-auto rounded-xl shadow-lg"
+                  />
+                ) : (
+                  <div className="w-80 h-60 flex items-center justify-center border-2 border-dashed border-white/30 rounded-xl">
+                    <div className="text-center text-white/60">
+                      <div className="text-4xl mb-2">🎨</div>
+                      <p>Select a template to start</p>
                     </div>
                   </div>
-                ))}
-                
-                {canvas && (
-                  <button
-                    onClick={downloadMeme}
-                    className="w-full bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 font-bold"
-                  >
-                    Download Meme
-                  </button>
                 )}
               </div>
-            )}
+            </div>
           </div>
+        </div>
+        
+        {/* Footer */}
+        <div className="text-center mt-8 text-white/60">
+          <p>Made with ❤️ for meme lovers everywhere</p>
         </div>
       </div>
     </div>

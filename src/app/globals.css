@@ -3,11 +3,9 @@
 @tailwind utilities;
 
 body {
-  font-family: system-ui, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* Simple hover effect for templates */
-.template-hover:hover {
-  transform: scale(1.02);
-  transition: transform 0.2s;
+* {
+  box-sizing: border-box;
 }
