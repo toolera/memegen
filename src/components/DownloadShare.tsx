@@ -105,7 +105,7 @@ export default function DownloadShare({ canvas, memeName }: DownloadShareProps) 
       
       <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
         <h4 className="font-bold text-slate-800 mb-2 flex items-center">
-          <span className="text-lg mr-2">🚀</span>
+          <span className="text-base mr-2">🚀</span>
           Pro Tips
         </h4>
         <ul className="text-sm text-slate-600 space-y-1">

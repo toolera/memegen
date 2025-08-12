@@ -38,8 +38,8 @@ export default function TextEditor({
           <div key={index} className="bg-gradient-to-r from-slate-50 to-white rounded-2xl p-5 border border-slate-200 shadow-card animate-fade-in">
             <div className="flex justify-between items-center mb-4">
               <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gradient-to-r from-purple-400 to-blue-400 rounded-full flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">{index + 1}</span>
+                <div className="w-6 h-6 bg-gradient-to-r from-purple-400 to-blue-400 rounded-full flex items-center justify-center">
+                  <span className="text-white font-bold text-xs">{index + 1}</span>
                 </div>
                 <h4 className="font-semibold text-slate-800">Text Layer {index + 1}</h4>
               </div>
